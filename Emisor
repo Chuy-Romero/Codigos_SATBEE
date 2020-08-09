@@ -1,0 +1,61 @@
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+#include <Wire.h>
+#include <Adafruit_BMP085.h>
+#include "I2Cdev.h"
+#include "MPU6050.h"
+#include "Wire.h"
+
+Adafruit_BMP085 bmp;
+const int bmpAdress = 0x77;
+
+const int mpuAddress = 0x68;
+MPU6050 mpu(mpuAddress);
+const float accScale = 2.0 * 9.81 / 32768.0;
+const float gyroScale = 250.0 / 32768.0;
+int ax, ay, az;
+int gx, gy, gz;
+
+
+const int pinCE = 9;
+const int pinCSN = 10;
+RF24 radio (pinCE, pinCSN);
+const uint64_t pipe = 0xE8E8F0F0E1LL;
+
+
+float data[9];
+
+void setup() {
+  Serial.begin(9600);
+  if (!bmp.begin()) {
+    Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+    while (1) {}
+  }
+  radio.begin();
+  radio.openWritingPipe(pipe);
+  Serial.begin(9600);
+  Wire.begin();
+  mpu.initialize();
+  Serial.println(mpu.testConnection() ? F("IMU iniciado correctamente") : F("Error al iniciar IMU"));
+}
+
+void loop() {
+  Wire.beginTransmission(bmpAdress);
+  data[0] = bmp.readTemperature();
+  data[1] = bmp.readPressure();
+  data[2] = bmp.readAltitude();
+  Wire.endTransmission();
+  Wire.beginTransmission(mpuAddress);
+  mpu.getAcceleration(&ax, &ay, &az);
+  mpu.getRotation(&gx, &gy, &gz);
+  data[3] = ax*accScale;
+  data[4] = ay*accScale;
+  data[5] = az*accScale;
+  data[6] = gx*gyroScale;
+  data[7] = gy*gyroScale;
+  data[8] = gz*gyroScale;
+  Wire.endTransmission();
+  radio.write(data, sizeof data);
+  delay(1000);
+}

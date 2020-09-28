@@ -25,6 +25,7 @@ const uint64_t pipe = 0xE8E8F0F0E1LL;
 
 
 float data[9];
+float T,A,P,Ax,Ay,Az,Gx,Gy,Gz;
 
 void setup() {
   Serial.begin(9600);
@@ -42,20 +43,29 @@ void setup() {
 
 void loop() {
   Wire.beginTransmission(bmpAdress);
-  data[0] = bmp.readTemperature();
-  data[1] = bmp.readPressure();
-  data[2] = bmp.readAltitude();
+  T = bmp.readTemperature();
+  P = bmp.readPressure();
+  A = bmp.readAltitude();
   Wire.endTransmission();
   Wire.beginTransmission(mpuAddress);
   mpu.getAcceleration(&ax, &ay, &az);
   mpu.getRotation(&gx, &gy, &gz);
-  data[3] = ax*accScale;
-  data[4] = ay*accScale;
-  data[5] = az*accScale;
-  data[6] = gx*gyroScale;
-  data[7] = gy*gyroScale;
-  data[8] = gz*gyroScale;
+  Ax = ax*accScale;
+  Ay = ay*accScale;
+  Az = az*accScale;
+  Gx = gx*gyroScale;
+  Gy = gy*gyroScale;
+  Gz = gz*gyroScale;
   Wire.endTransmission();
+  data[0] = T;
+  data[1] = P;
+  data[2] = A;
+  data[3] = Ax;
+  data[4] = Ay;
+  data[5] = Az;
+  data[6] = Gx;
+  data[7] = Gy;
+  data[8] = Gz;
   radio.write(data, sizeof data);
   delay(1000);
 }

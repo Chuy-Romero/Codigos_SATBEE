@@ -23,9 +23,8 @@ const int pinCSN = 10;
 RF24 radio (pinCE, pinCSN);
 const uint64_t pipe = 0xE8E8F0F0E1LL;
 
-
+float T,P,A,Ax,Ay,Az,Gx,Gy,Gz;
 float data[9];
-float T,A,P,Ax,Ay,Az,Gx,Gy,Gz;
 
 void setup() {
   Serial.begin(9600);

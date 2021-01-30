@@ -1,26 +1,26 @@
-#include <SPI.h>
+#include <SPI.h>       /*librerias para usar el modulo de readiocomunicacion*/
 #include <nRF24L01.h>
 #include <RF24.h>
 
-const int pinCE = 9;
+const int pinCE = 9;          /*pines  dee uso del modulo*/
 const int pinCSN = 10;
 RF24 radio(pinCE, pinCSN);
 
-const uint64_t pipe = 0xE8E8F0F0E1LL;
+const uint64_t pipe = 0xE8E8F0F0E1LL;   /*direccion de conexion entre las antenas*/
 
-float data[9];
+float data[9];           /*arreglo que almacena los datos recividos*/ 
 
 void setup() {
-  radio.begin();
-  Serial.begin(9600);
-  radio.openReadingPipe(1, pipe);
+  radio.begin();       /*iniciamos el modulo*/
+  Serial.begin(9600);  /*iniciamos comunicacion serial*/
+  radio.openReadingPipe(1, pipe);     /*lo iniciamos como receptor*/
   radio.startListening();
 }
 
 void loop() {
-  if(radio.available()){
-    radio.read(data, sizeof data);
-    Serial.print("Temperatura = ");
+  if(radio.available()){           /*detecta si hay un emisor disponible*/
+    radio.read(data, sizeof data);  /*kee los datos enviados por el emisor
+    Serial.print("Temperatura = ");  /*recive cada dato y lo imprime en el monittor serial*/
     Serial.print(data [0]);
     Serial.println("°C");
     Serial.print("Presion = ");
@@ -48,6 +48,6 @@ void loop() {
     Serial.println("grad/s");
     
   }
-  Serial.println();
-  delay(1000);
+  Serial.println(); /*impirme un espacio*/
+  delay(1000);      /*repite el proceso cada 1 segundo*/
 }
